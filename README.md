@@ -120,9 +120,9 @@ When seeded, the following initial accounts are available for immediate login:
 
 | Role | Name | Login ID | Email | Password | Details |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **ADMIN** | Alexander Vance | `OIADMI20260001` | `admin@dayflow.com` | `Admin@12345` | Full HR controls, employee creation, salary editing, leave review |
-| **EMPLOYEE** | Sarah Jenkins | `OISAJE20260002` | `sarah.jenkins@dayflow.com` | `Employee@123` | Engineering department, full profile, sample attendance & PTO |
-| **EMPLOYEE** | David Chen | `OIDACH20260003` | `david.chen@dayflow.com` | `Employee@123` | Product Design, `mustChangePassword=true` (tests forced password change) |
+| **ADMIN** | Krishna | `OIADMI20260001` | `admin@dayflow.com` | `Admin@12345` | Full HR controls, employee creation, salary editing, leave review |
+| **EMPLOYEE** | Aarav Sharma | `OIAASH20260002` | `aarav.sharma@dayflow.com` | `Employee@123` | Engineering department, full profile, sample attendance & PTO |
+| **EMPLOYEE** | Rohan Gupta | `OIROGU20260003` | `rohan.gupta@dayflow.com` | `Employee@123` | Product Design, `mustChangePassword=true` (tests forced password change) |
 | **EMPLOYEE** | Priya Sharma | `OIPRSH20260004` | `priya.sharma@dayflow.com` | `Employee@123` | Marketing department, approved leave history |
 
 ---

@@ -183,23 +183,23 @@ export default function LoginPage() {
               {/* 2. Employee Card */}
               <button
                 type="button"
-                onClick={() => setDemoCredentials("OISAJE20260002", "Employee@123")}
+                onClick={() => setDemoCredentials("OIAASH20260002", "Employee@123")}
                 className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-background hover:bg-background/80 border border-border hover:border-primary/40 rounded-xl text-xs text-left transition-all group"
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
                     <span className="font-bold text-text-primary group-hover:text-primary transition-colors">
-                      Sarah Jenkins
+                      Aarav Sharma
                     </span>
                     <span className="text-[10px] font-medium text-text-secondary bg-surface px-1.5 py-0.5 rounded border border-border">
                       EMPLOYEE
                     </span>
                   </div>
                   <div className="text-[11px] text-text-secondary">
-                    Email: <span className="font-medium text-text-primary">sarah.jenkins@dayflow.com</span>
+                    Email: <span className="font-medium text-text-primary">aarav.sharma@dayflow.com</span>
                   </div>
                   <div className="text-[11px] text-text-secondary font-mono">
-                    ID: <span className="font-semibold text-primary">OISAJE20260002</span>
+                    ID: <span className="font-semibold text-primary">OIAASH20260002</span>
                   </div>
                 </div>
                 <div className="mt-2 sm:mt-0 sm:text-right flex sm:flex-col items-center sm:items-end justify-between">

@@ -1,19 +1,35 @@
-import { PrismaClient, Role, WageType, AttendanceStatus, LeaveType, LeaveStatus } from "@prisma/client";
+import { Role, WageType, AttendanceStatus, LeaveType, LeaveStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 async function main() {
   console.log("🌱 Starting Dayflow HRMS database seed...");
 
-  // Clean existing records if any
-  await prisma.leaveRequest.deleteMany({});
-  await prisma.leaveAllocation.deleteMany({});
-  await prisma.attendance.deleteMany({});
-  await prisma.salaryInfo.deleteMany({});
-  await prisma.resume.deleteMany({});
-  await prisma.privateInfo.deleteMany({});
-  await prisma.user.deleteMany({});
+  const seedEmails = [
+    "admin@dayflow.com",
+    "aarav.sharma@dayflow.com",
+    "rohan.gupta@dayflow.com",
+    "priya.sharma@dayflow.com",
+    "sarah.jenkins@dayflow.com",
+    "david.chen@dayflow.com"
+  ];
+
+  // Unlink manager and clean specific demo accounts
+  await prisma.user.updateMany({
+    where: { email: { in: seedEmails } },
+    data: { managerId: null },
+  });
+  await prisma.leaveRequest.deleteMany({
+    where: {
+      OR: [
+        { employee: { email: { in: seedEmails } } },
+        { reviewedBy: { email: { in: seedEmails } } }
+      ]
+    }
+  });
+  await prisma.user.deleteMany({
+    where: { email: { in: seedEmails } }
+  });
 
   const adminHashedPassword = await bcrypt.hash("Admin@12345", 10);
   const employeeHashedPassword = await bcrypt.hash("Employee@123", 10);
@@ -33,7 +49,7 @@ async function main() {
       role: Role.ADMIN,
       company: "Dayflow Technologies",
       department: "Human Resources",
-      location: "Bangalore HQ",
+      location: "Bengaluru HQ",
       dateOfJoining: new Date("2024-01-15"),
       isActive: true,
       privateInfo: {
@@ -41,9 +57,9 @@ async function main() {
           dateOfBirth: new Date("1988-06-14"),
           gender: "Male",
           maritalStatus: "Married",
-          residingAddress: "402, Skyline Residency, Indiranagar, Bangalore, Karnataka - 560038",
+          residingAddress: "402, Skyline Residency, Indiranagar, Bengaluru, Karnataka - 560038",
           nationality: "Indian",
-          personalEmail: "alexander.vance@gmail.com",
+          personalEmail: "krishna.hrms@gmail.com",
           panNo: "ABCDE1234F",
           uanNo: "100234567890",
           expCode: "EXP-HR-001",
@@ -57,7 +73,7 @@ async function main() {
           about: "Accomplished Human Resources leader with 12+ years of experience in talent strategy, workforce operations, and organizational scaling.",
           skills: ["Strategic HR", "Talent Acquisition", "Compensation & Benefits", "Compliance", "People Analytics"],
           certifications: ["SHRM-SCP", "OD Specialist", "Certified Compensation Professional"],
-          interestsAndHobbies: "Marathon running, Chess, Classical Jazz, Reading biography classics.",
+          interestsAndHobbies: "Marathon running, Chess, Classical music, Reading biography classics.",
         },
       },
       salaryInfo: {
@@ -97,30 +113,30 @@ async function main() {
     },
   });
 
-  // 2. Create Employee 1 - Sarah Jenkins (Senior Full Stack Engineer)
+  // 2. Create Employee 1 - Aarav Sharma (Senior Full Stack Engineer)
   const emp1 = await prisma.user.create({
     data: {
-      loginId: "OISAJE20260002",
-      name: "Sarah Jenkins",
-      email: "sarah.jenkins@dayflow.com",
+      loginId: "OIAASH20260002",
+      name: "Aarav Sharma",
+      email: "aarav.sharma@dayflow.com",
       phone: "+91 98765 11111",
       password: employeeHashedPassword,
       mustChangePassword: false,
       role: Role.EMPLOYEE,
       company: "Dayflow Technologies",
       department: "Engineering",
-      location: "Bangalore HQ",
+      location: "Bengaluru HQ",
       managerId: admin.id,
       dateOfJoining: new Date("2024-03-01"),
       isActive: true,
       privateInfo: {
         create: {
           dateOfBirth: new Date("1994-09-22"),
-          gender: "Female",
+          gender: "Male",
           maritalStatus: "Single",
-          residingAddress: "12, Palm Meadows, Whitefield, Bangalore, Karnataka - 560066",
+          residingAddress: "12, Palm Meadows, Whitefield, Bengaluru, Karnataka - 560066",
           nationality: "Indian",
-          personalEmail: "sarah.dev@outlook.com",
+          personalEmail: "aarav.sharma.dev@gmail.com",
           panNo: "FGHIJ5678K",
           uanNo: "100987654321",
           expCode: "EXP-ENG-042",
@@ -134,7 +150,7 @@ async function main() {
           about: "Full Stack Engineer passionate about building scalable cloud applications, distributed microservices, and slick reactive web UI.",
           skills: ["TypeScript", "Next.js", "React", "PostgreSQL", "Prisma", "Docker", "AWS", "GraphQL"],
           certifications: ["AWS Certified Solutions Architect", "CKA - Certified Kubernetes Administrator", "Meta Front-End Specialization"],
-          interestsAndHobbies: "Open source contributing, rock climbing, photography, indie game dev.",
+          interestsAndHobbies: "Open source contributing, badminton, photography, tech blogging.",
         },
       },
       salaryInfo: {
@@ -174,12 +190,12 @@ async function main() {
     },
   });
 
-  // 3. Create Employee 2 - David Chen (Lead UI/UX Designer - mustChangePassword: true)
+  // 3. Create Employee 2 - Rohan Gupta (Lead UI/UX Designer - mustChangePassword: true)
   const emp2 = await prisma.user.create({
     data: {
-      loginId: "OIDACH20260003",
-      name: "David Chen",
-      email: "david.chen@dayflow.com",
+      loginId: "OIROGU20260003",
+      name: "Rohan Gupta",
+      email: "rohan.gupta@dayflow.com",
       phone: "+91 98765 22222",
       password: employeeHashedPassword,
       mustChangePassword: true, // Test forced redirect
@@ -195,9 +211,9 @@ async function main() {
           dateOfBirth: new Date("1992-11-05"),
           gender: "Male",
           maritalStatus: "Married",
-          residingAddress: "Flat 801, Sea View Towers, Bandra West, Mumbai - 400050",
+          residingAddress: "Flat 801, Sea View Towers, Bandra West, Mumbai, Maharashtra - 400050",
           nationality: "Indian",
-          personalEmail: "david.chen.design@gmail.com",
+          personalEmail: "rohan.gupta.design@gmail.com",
           panNo: "KLMNO9012P",
           uanNo: "100554433221",
           expCode: "EXP-DES-018",
@@ -272,7 +288,7 @@ async function main() {
           dateOfBirth: new Date("1995-02-18"),
           gender: "Female",
           maritalStatus: "Single",
-          residingAddress: "B-44, Greater Kailash 1, New Delhi - 110048",
+          residingAddress: "B-44, Greater Kailash 1, New Delhi, Delhi - 110048",
           nationality: "Indian",
           personalEmail: "priya.growth@gmail.com",
           panNo: "PQRST3456U",
@@ -345,7 +361,7 @@ async function main() {
     },
   });
 
-  // Pending Leave for Sarah
+  // Pending Leave for Aarav
   const futureLeaveStart = new Date(todayOnly.getTime() + 7 * 86400000);
   const futureLeaveEnd = new Date(todayOnly.getTime() + 8 * 86400000);
   await prisma.leaveRequest.create({
@@ -360,7 +376,7 @@ async function main() {
     },
   });
 
-  // Pending Sick Leave for David
+  // Pending Sick Leave for Rohan
   await prisma.leaveRequest.create({
     data: {
       employeeId: emp2.id,
@@ -382,9 +398,9 @@ async function main() {
   console.log("   • Password : Admin@12345");
   console.log("--------------------------------------------------------");
   console.log("👤 SAMPLE EMPLOYEES:");
-  console.log("   • Sarah Jenkins (Engineering)  : OISAJE20260002 / Employee@123");
-  console.log("   • David Chen    (Design - Must Reset Pwd): OIDACH20260003 / Employee@123");
-  console.log("   • Priya Sharma  (Marketing)    : OIPRSH20260004 / Employee@123");
+  console.log("   • Aarav Sharma (Engineering)  : OIAASH20260002 / Employee@123");
+  console.log("   • Rohan Gupta  (Design - Must Reset Pwd): OIROGU20260003 / Employee@123");
+  console.log("   • Priya Sharma (Marketing)    : OIPRSH20260004 / Employee@123");
   console.log("========================================================\n");
 }
 

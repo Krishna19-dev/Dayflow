@@ -5,9 +5,9 @@ const DEFAULT_COMPANY_CODE = process.env.COMPANY_CODE || "OI";
 /**
  * Generates an employee login ID following the format:
  * [CompanyCode][First2FirstName+First2LastName][JoinYear][SerialNumber]
- * Example: OIJODO20260001
+ * Example: OIKRCH20260001
  *
- * @param name Full name of employee (e.g. "John Doe")
+ * @param name Full name of employee (e.g. "Krishna Choudhary")
  * @param dateOfJoining Date of joining
  * @param companyCode Optional company code (defaults to "OI")
  */

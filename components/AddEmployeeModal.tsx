@@ -221,7 +221,7 @@ export function AddEmployeeModal({
                 <input
                   type="text"
                   required
-                  placeholder="e.g. John Doe"
+                  placeholder="e.g. Krishna Choudhary"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3 py-2 bg-background border border-border rounded-lg text-xs text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
@@ -235,7 +235,7 @@ export function AddEmployeeModal({
                 <input
                   type="email"
                   required
-                  placeholder="john.doe@dayflow.com"
+                  placeholder="krishna.choudhary@dayflow.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-3 py-2 bg-background border border-border rounded-lg text-xs text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
@@ -295,7 +295,7 @@ export function AddEmployeeModal({
                 </label>
                 <input
                   type="text"
-                  placeholder="Bangalore HQ"
+                  placeholder="Bengaluru HQ"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full px-3 py-2 bg-background border border-border rounded-lg text-xs text-text-primary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
