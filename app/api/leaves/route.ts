@@ -4,6 +4,8 @@ import { requireAuth, requireAdmin } from "@/lib/auth";
 import { LeaveType, LeaveStatus } from "@prisma/client";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const createLeaveSchema = z.object({
   leaveType: z.nativeEnum(LeaveType),
   startDate: z.string().min(1, "Start date is required"),

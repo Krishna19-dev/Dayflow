@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { LeaveType } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const { session, error } = await requireAuth();

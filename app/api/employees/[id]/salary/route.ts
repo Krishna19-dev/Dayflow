@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, requireAuth } from "@/lib/auth";
 import { calculateSalaryBreakdown } from "@/lib/calculateSalary";
 import { WageType } from "@prisma/client";
 import { z } from "zod";

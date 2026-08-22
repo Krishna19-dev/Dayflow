@@ -6,6 +6,8 @@ import { generateTemporaryPassword, hashPassword } from "@/lib/generatePassword"
 import { Role, WageType, LeaveType } from "@prisma/client";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const createEmployeeSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
