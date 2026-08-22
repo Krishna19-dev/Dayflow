@@ -550,7 +550,7 @@ export default function TimeOffPage() {
               </div>
             ) : employeeLeaves.length === 0 ? (
               <div className="p-12 text-center text-xs text-text-secondary">
-                You have not submitted any time off requests yet. Click "NEW Request" above to apply.
+                You have not submitted any time off requests yet. Click &quot;NEW Request&quot; above to apply.
               </div>
             ) : (
               <div className="overflow-x-auto">
