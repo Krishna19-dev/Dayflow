@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
+
+enum WageType {
+  FIXED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LEAVE
+}
+
+enum LeaveType {
+  PAID_TIME_OFF
+  SICK_LEAVE
+  UNPAID_LEAVE
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  loginId            String    @unique
+  name               String
+  email              String    @unique
+  phone              String
+  password           String
+  mustChangePassword Boolean   @default(true)
+  role               Role      @default(EMPLOYEE)
+  company            String    @default("Dayflow Corp")
+  department         String    @default("Engineering")
+  location           String    @default("Headquarters")
+  profilePicture     String?
+  dateOfJoining      DateTime  @default(now())
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Self relation for manager
+  managerId          String?
+  manager            User?     @relation("UserManager", fields: [managerId], references: [id])
+  directReports      User[]    @relation("UserManager")
+
+  // 1:1 Relations
+  privateInfo        PrivateInfo?
+  resume             Resume?
+  salaryInfo         SalaryInfo?
+
+  // 1:N Relations
+  attendances        Attendance[]
+  leaveAllocations   LeaveAllocation[]
+  leaveRequests      LeaveRequest[]    @relation("EmployeeLeaveRequests")
+  reviewedLeaves     LeaveRequest[]    @relation("ManagerReviewedLeaves")
+
+  @@index([role])
+  @@index([department])
+  @@index([isActive])
+}
+
+model PrivateInfo {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateOfBirth       DateTime?
+  gender            String?
+  maritalStatus     String?
+  residingAddress   String?
+  nationality       String?   @default("Indian")
+  personalEmail     String?
+  panNo             String?
+  uanNo             String?
+  expCode           String?
+  bankAccountNumber String?
+  bankName          String?
+  ifscCode          String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Resume {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  about               String?  @db.Text
+  skills              String[]
+  certifications      String[]
+  interestsAndHobbies String?  @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model SalaryInfo {
+  id                            String   @id @default(cuid())
+  userId                        String   @unique
+  user                          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wageType                      WageType @default(FIXED)
+  monthlyWage                   Float    @default(0)
+  yearlyWage                    Float    @default(0)
+  workingDaysPerWeek            Int      @default(5)
+  breakTimeHours                Float    @default(1.0)
+  basicSalaryPercent            Float    @default(50.0)
+  hraPercent                    Float    @default(20.0)
+  standardAllowancePercent      Float    @default(10.0)
+  performanceBonusPercent       Float    @default(10.0)
+  leaveTravelAllowancePercent   Float    @default(5.0)
+  fixedAllowancePercent         Float    @default(5.0)
+  employeePfPercent             Float    @default(12.0)
+  employerPfPercent             Float    @default(12.0)
+  professionalTax               Float    @default(200.0)
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+}
+
+model Attendance {
+  id           String           @id @default(cuid())
+  employeeId   String
+  employee     User             @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date         DateTime         @db.Date
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+  workHours    Float            @default(0)
+  extraHours   Float            @default(0)
+  status       AttendanceStatus @default(PRESENT)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([date])
+  @@index([status])
+}
+
+model LeaveAllocation {
+  id             String    @id @default(cuid())
+  employeeId     String
+  employee       User      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType      LeaveType
+  totalAllocated Float     @default(0)
+  used           Float     @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([employeeId, leaveType])
+}
+
+model LeaveRequest {
+  id             String      @id @default(cuid())
+  employeeId     String
+  employee       User        @relation("EmployeeLeaveRequests", fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType      LeaveType
+  startDate      DateTime    @db.Date
+  endDate        DateTime    @db.Date
+  allocationDays Float
+  attachmentUrl  String?
+  status         LeaveStatus @default(PENDING)
+  reviewedById   String?
+  reviewedBy     User?       @relation("ManagerReviewedLeaves", fields: [reviewedById], references: [id])
+  reviewComment  String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
