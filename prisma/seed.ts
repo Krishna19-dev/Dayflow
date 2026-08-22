@@ -25,7 +25,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       loginId: "OIADMI20260001",
-      name: "Alexander Vance",
+      name: "Krishna",
       email: "admin@dayflow.com",
       phone: "+91 98765 43210",
       password: adminHashedPassword,

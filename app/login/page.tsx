@@ -146,44 +146,68 @@ export default function LoginPage() {
 
           {/* Demo Accounts Quick-Fill Helper */}
           <div className="mt-6 pt-5 border-t border-border">
-            <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-primary" /> Quick Demo Logins
             </p>
-            <div className="grid grid-cols-1 gap-1.5">
+            <div className="grid grid-cols-1 gap-2">
+              {/* 1. Admin Card */}
               <button
                 type="button"
                 onClick={() => setDemoCredentials("OIADMI20260001", "Admin@12345")}
-                className="flex items-center justify-between px-3 py-1.5 bg-background hover:bg-background/80 border border-border rounded-md text-xs text-left text-text-primary transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-background hover:bg-background/80 border border-border hover:border-primary/40 rounded-xl text-xs text-left transition-all group"
               >
-                <div>
-                  <span className="font-semibold text-primary">Admin (Alexander Vance)</span>
-                  <span className="text-[10px] text-text-secondary ml-1.5">Full HR Controls</span>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-text-primary group-hover:text-primary transition-colors">
+                      Krishna
+                    </span>
+                    <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                      ADMIN
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-text-secondary">
+                    Email: <span className="font-medium text-text-primary">admin@dayflow.com</span>
+                  </div>
+                  <div className="text-[11px] text-text-secondary font-mono">
+                    ID: <span className="font-semibold text-primary">OIADMI20260001</span>
+                  </div>
                 </div>
-                <span className="text-[10px] font-mono text-text-secondary">Admin@12345</span>
+                <div className="mt-2 sm:mt-0 sm:text-right flex sm:flex-col items-center sm:items-end justify-between">
+                  <span className="text-[10px] text-text-secondary">Password</span>
+                  <span className="text-[11px] font-mono font-bold text-text-primary bg-surface px-2 py-0.5 rounded border border-border">
+                    Admin@12345
+                  </span>
+                </div>
               </button>
 
+              {/* 2. Employee Card */}
               <button
                 type="button"
                 onClick={() => setDemoCredentials("OISAJE20260002", "Employee@123")}
-                className="flex items-center justify-between px-3 py-1.5 bg-background hover:bg-background/80 border border-border rounded-md text-xs text-left text-text-primary transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-background hover:bg-background/80 border border-border hover:border-primary/40 rounded-xl text-xs text-left transition-all group"
               >
-                <div>
-                  <span className="font-semibold">Sarah Jenkins (Engineering)</span>
-                  <span className="text-[10px] text-text-secondary ml-1.5">Standard Employee</span>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-text-primary group-hover:text-primary transition-colors">
+                      Sarah Jenkins
+                    </span>
+                    <span className="text-[10px] font-medium text-text-secondary bg-surface px-1.5 py-0.5 rounded border border-border">
+                      EMPLOYEE
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-text-secondary">
+                    Email: <span className="font-medium text-text-primary">sarah.jenkins@dayflow.com</span>
+                  </div>
+                  <div className="text-[11px] text-text-secondary font-mono">
+                    ID: <span className="font-semibold text-primary">OISAJE20260002</span>
+                  </div>
                 </div>
-                <span className="text-[10px] font-mono text-text-secondary">Employee@123</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDemoCredentials("OIDACH20260003", "Employee@123")}
-                className="flex items-center justify-between px-3 py-1.5 bg-background hover:bg-background/80 border border-border rounded-md text-xs text-left text-text-primary transition-colors"
-              >
-                <div>
-                  <span className="font-semibold">David Chen (UI/UX)</span>
-                  <span className="text-[10px] text-amber-600 ml-1.5">Triggers Password Reset</span>
+                <div className="mt-2 sm:mt-0 sm:text-right flex sm:flex-col items-center sm:items-end justify-between">
+                  <span className="text-[10px] text-text-secondary">Password</span>
+                  <span className="text-[11px] font-mono font-bold text-text-primary bg-surface px-2 py-0.5 rounded border border-border">
+                    Employee@123
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono text-text-secondary">Employee@123</span>
               </button>
             </div>
           </div>

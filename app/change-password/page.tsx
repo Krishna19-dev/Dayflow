@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Loader2,
   ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 
 export default function ChangePasswordPage() {
@@ -20,10 +21,18 @@ export default function ChangePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const router = useRouter();
 
   const isForced = user?.mustChangePassword;
+
+  const handleBack = () => {
+    if (isForced) {
+      logout();
+    } else {
+      router.push("/dashboard");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +85,18 @@ export default function ChangePasswordPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
       <div className="max-w-md w-full">
+        {/* Back Navigation Button */}
+        <div className="mb-3">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-surface border border-transparent hover:border-border transition-all group"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+            <span>{isForced ? "Sign Out / Back to Login" : "Back to Dashboard"}</span>
+          </button>
+        </div>
+
         {/* Card */}
         <div className="bg-surface border border-border rounded-2xl p-7 shadow-card">
           <div className="flex items-center gap-3 mb-4">
@@ -162,21 +183,32 @@ export default function ChangePasswordPage() {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={loading || success}
-              className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 px-4 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-hover shadow-sm transition-all disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Updating...
-                </>
-              ) : (
-                <>
-                  Set New Password & Continue <ArrowRight className="w-3.5 h-3.5" />
-                </>
+            <div className="flex items-center gap-2 pt-1">
+              {!isForced && (
+                <button
+                  type="button"
+                  onClick={() => router.push("/dashboard")}
+                  className="flex-1 py-2.5 px-4 bg-background hover:bg-background/80 text-text-secondary hover:text-text-primary border border-border text-xs font-bold rounded-lg transition-all"
+                >
+                  Cancel
+                </button>
               )}
-            </button>
+              <button
+                type="submit"
+                disabled={loading || success}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-hover shadow-sm transition-all disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Updating...
+                  </>
+                ) : (
+                  <>
+                    Set Password <ArrowRight className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>
