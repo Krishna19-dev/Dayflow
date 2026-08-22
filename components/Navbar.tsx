@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Link from "next/navigation";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";

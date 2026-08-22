@@ -9,6 +9,10 @@
     "lint": "next lint",
     "postinstall": "prisma generate"
   },
+  "engines": {
+    "node": "20.x",
+    "npm": ">=9.0.0"
+  },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
