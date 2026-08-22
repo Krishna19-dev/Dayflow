@@ -708,9 +708,47 @@ export default function TimeOffPage() {
               </div>
             </div>
 
+            {/* Decision Choice Buttons inside Modal */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-text-primary">
+                Review Decision:
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setReviewModal((prev) => ({ ...prev, action: "APPROVED" }))
+                  }
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                    reviewModal.action === "APPROVED"
+                      ? "bg-[#DCFCE7] text-[#166534] border-[#86EFAC] ring-2 ring-[#16A34A]/30 shadow-sm"
+                      : "bg-background text-text-secondary border-border hover:bg-background/80"
+                  }`}
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Approve Leave</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setReviewModal((prev) => ({ ...prev, action: "REJECTED" }))
+                  }
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                    reviewModal.action === "REJECTED"
+                      ? "bg-[#FEF2F2] text-error border-[#FECACA] ring-2 ring-error/30 shadow-sm"
+                      : "bg-background text-text-secondary border-border hover:bg-background/80"
+                  }`}
+                >
+                  <XCircle className="w-4 h-4" />
+                  <span>Reject Leave</span>
+                </button>
+              </div>
+            </div>
+
             {/* Warning / Informational Alert Box */}
             {reviewModal.action === "APPROVED" ? (
-              <div className="p-3 bg-[#DCFCE7]/70 border border-[#BBF7D0] rounded-xl text-xs text-[#166534] flex items-start gap-2">
+              <div className="p-3 bg-[#DCFCE7]/70 border border-[#BBF7D0] rounded-xl text-xs text-[#166534] flex items-start gap-2 animate-fade-in">
                 <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>
                   <strong>Approval Impact:</strong> This will deduct{" "}
@@ -720,7 +758,7 @@ export default function TimeOffPage() {
                 </span>
               </div>
             ) : (
-              <div className="p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl text-xs text-error flex items-start gap-2">
+              <div className="p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl text-xs text-error flex items-start gap-2 animate-fade-in">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>
                   <strong>Rejection Warning:</strong> The request will be marked as rejected. No leave days will be deducted from the employee&apos;s quota.
