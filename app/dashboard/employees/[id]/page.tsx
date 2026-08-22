@@ -46,6 +46,10 @@ export default function EmployeeProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  // Delete State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   // Editable Basic Info State
   const [isEditingBasic, setIsEditingBasic] = useState(false);
   const [basicForm, setBasicForm] = useState({
@@ -264,6 +268,25 @@ export default function EmployeeProfilePage() {
     }
   };
 
+  const handleDeleteEmployee = async () => {
+    if (!employee || !isAdmin || isSelf) return;
+    setDeleteLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/employees/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete employee");
+
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Failed to delete employee");
+      setDeleteLoading(false);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   // Skill tag add/remove
   const handleAddSkill = () => {
     const trimmed = newSkillInput.trim();
@@ -420,34 +443,46 @@ export default function EmployeeProfilePage() {
             </div>
           </div>
 
-          {/* Quick Edit Basic Details (Self or Admin) */}
-          {canEdit && (
-            <div>
-              {isEditingBasic ? (
-                <div className="flex items-center gap-2">
+          {/* Quick Actions (Self or Admin) */}
+          <div className="flex items-center gap-2">
+            {isAdmin && !isSelf && (
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-error/10 text-error hover:bg-error hover:text-white border border-error/30 rounded-lg text-xs font-semibold transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete Employee
+              </button>
+            )}
+
+            {canEdit && (
+              <div>
+                {isEditingBasic ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleSaveBasic}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-hover text-xs font-semibold rounded-lg shadow-sm transition-all"
+                    >
+                      <Save className="w-3.5 h-3.5" /> Save
+                    </button>
+                    <button
+                      onClick={() => setIsEditingBasic(false)}
+                      className="p-1.5 text-text-secondary hover:text-text-primary bg-background rounded-lg border border-border transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={handleSaveBasic}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-hover text-xs font-semibold rounded-lg shadow-sm transition-all"
+                    onClick={() => setIsEditingBasic(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-background hover:bg-background/80 border border-border rounded-lg text-xs font-semibold text-text-primary transition-colors"
                   >
-                    <Save className="w-3.5 h-3.5" /> Save
+                    <Edit3 className="w-3.5 h-3.5 text-text-secondary" /> Edit Basic Details
                   </button>
-                  <button
-                    onClick={() => setIsEditingBasic(false)}
-                    className="p-1.5 text-text-secondary hover:text-text-primary bg-background rounded-lg border border-border transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setIsEditingBasic(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-background hover:bg-background/80 border border-border rounded-lg text-xs font-semibold text-text-primary transition-colors"
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-text-secondary" /> Edit Basic Details
-                </button>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Basic Details Inline Edit Form */}
@@ -1238,6 +1273,81 @@ export default function EmployeeProfilePage() {
               )}
             </button>
           </form>
+        </div>
+      )}
+      {/* ========================================================
+          DELETE CONFIRMATION MODAL (ADMIN ONLY)
+         ======================================================== */}
+      {isDeleteModalOpen && employee && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div
+            className="bg-surface border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 border-b border-border pb-3">
+              <div className="w-10 h-10 rounded-xl bg-error-light text-error flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-text-primary">
+                  Delete Employee Account
+                </h3>
+                <p className="text-[11px] text-text-secondary">
+                  Permanent removal of workforce member.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-[#FEF2F2] border border-[#FECACA] rounded-xl text-xs text-error space-y-2">
+              <p className="font-semibold">
+                Are you sure you want to permanently delete this employee?
+              </p>
+              <div className="bg-surface p-2 rounded-lg text-text-primary font-mono text-[11px] border border-error/20 space-y-1">
+                <div>
+                  <span className="text-text-secondary">Name: </span>
+                  <span className="font-bold">{employee.name}</span>
+                </div>
+                <div>
+                  <span className="text-text-secondary">Login ID: </span>
+                  <span className="font-bold text-primary">{employee.loginId}</span>
+                </div>
+                <div>
+                  <span className="text-text-secondary">Email: </span>
+                  <span>{employee.email}</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-error">
+                ⚠️ All associated attendance ledgers, leave records, salary parameters, and private KYC data will be permanently deleted. This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                disabled={deleteLoading}
+                className="px-4 py-2 text-xs font-semibold text-text-secondary hover:text-text-primary bg-background border border-border rounded-xl hover:bg-background/80 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteEmployee}
+                disabled={deleteLoading}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-error hover:bg-red-700 rounded-xl shadow-sm transition-all disabled:opacity-50"
+              >
+                {deleteLoading ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" /> Yes, Delete Employee
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, requireAdmin } from "@/lib/auth";
 import { calculateSalaryBreakdown } from "@/lib/calculateSalary";
 import { z } from "zod";
 
@@ -142,6 +142,69 @@ export async function PUT(
     console.error("PUT /api/employees/[id] error:", error);
     return NextResponse.json(
       { error: "Failed to update employee details" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { session, error } = await requireAdmin();
+    if (error) return error;
+
+    const { id } = params;
+
+    // Prevent Admin from deleting their own account
+    if (session.id === id) {
+      return NextResponse.json(
+        { error: "You cannot delete your own admin account." },
+        { status: 400 }
+      );
+    }
+
+    const employee = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, name: true, loginId: true, role: true },
+    });
+
+    if (!employee) {
+      return NextResponse.json(
+        { error: "Employee not found" },
+        { status: 404 }
+      );
+    }
+
+    // Safe transaction cleanup
+    await prisma.$transaction(async (tx) => {
+      // 1. Unlink direct reports where this user is the manager
+      await tx.user.updateMany({
+        where: { managerId: id },
+        data: { managerId: null },
+      });
+
+      // 2. Unlink reviewed leaves where this user was reviewer
+      await tx.leaveRequest.updateMany({
+        where: { reviewedById: id },
+        data: { reviewedById: null },
+      });
+
+      // 3. Delete user record (cascading deletes privateInfo, resume, salaryInfo, attendances, leaveAllocations, leaveRequests)
+      await tx.user.delete({
+        where: { id },
+      });
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Employee ${employee.name} (${employee.loginId}) deleted successfully.`,
+    });
+  } catch (error) {
+    console.error("DELETE /api/employees/[id] error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete employee account" },
       { status: 500 }
     );
   }
