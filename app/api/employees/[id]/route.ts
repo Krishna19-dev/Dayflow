@@ -177,24 +177,21 @@ export async function DELETE(
       );
     }
 
-    // Safe transaction cleanup
-    await prisma.$transaction(async (tx) => {
-      // 1. Unlink direct reports where this user is the manager
-      await tx.user.updateMany({
-        where: { managerId: id },
-        data: { managerId: null },
-      });
+    // 1. Unlink direct reports where this user is the manager
+    await prisma.user.updateMany({
+      where: { managerId: id },
+      data: { managerId: null },
+    });
 
-      // 2. Unlink reviewed leaves where this user was reviewer
-      await tx.leaveRequest.updateMany({
-        where: { reviewedById: id },
-        data: { reviewedById: null },
-      });
+    // 2. Unlink reviewed leaves where this user was reviewer
+    await prisma.leaveRequest.updateMany({
+      where: { reviewedById: id },
+      data: { reviewedById: null },
+    });
 
-      // 3. Delete user record (cascading deletes privateInfo, resume, salaryInfo, attendances, leaveAllocations, leaveRequests)
-      await tx.user.delete({
-        where: { id },
-      });
+    // 3. Delete user record (cascading deletes privateInfo, resume, salaryInfo, attendances, leaveAllocations, leaveRequests)
+    await prisma.user.delete({
+      where: { id },
     });
 
     return NextResponse.json({

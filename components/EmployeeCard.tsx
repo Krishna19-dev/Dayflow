@@ -84,9 +84,11 @@ export function EmployeeCard({
               <p className="text-xs font-medium text-text-secondary mt-0.5">
                 {employee.department}
               </p>
-              <p className="text-[11px] font-mono text-text-secondary">
-                {employee.loginId}
-              </p>
+              <div className="mt-1">
+                <span className="inline-flex items-center text-[10px] font-medium bg-background text-text-secondary border border-border/80 px-1.5 py-0.5 rounded tracking-wide font-sans">
+                  {employee.loginId}
+                </span>
+              </div>
             </div>
           </div>
 

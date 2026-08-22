@@ -156,70 +156,66 @@ export async function POST(request: Request) {
 
     const yearlyWage = monthlyWage * 12;
 
-    // Run transaction to create User + 1:1 records + default Leave Allocations
-    const newEmployee = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          loginId,
-          name: name.trim(),
-          email: email.toLowerCase().trim(),
-          phone: phone.trim(),
-          password: hashedPassword,
-          mustChangePassword: true,
-          role: role as Role,
-          company: company || "Dayflow Technologies",
-          department: department.trim(),
-          location: location || "Headquarters",
-          dateOfJoining: joiningDate,
-          isActive: true,
-          privateInfo: {
-            create: {
-              nationality: "Indian",
-            },
-          },
-          resume: {
-            create: {
-              skills: [],
-              certifications: [],
-            },
-          },
-          salaryInfo: {
-            create: {
-              wageType: WageType.FIXED,
-              monthlyWage,
-              yearlyWage,
-              workingDaysPerWeek: 5,
-              breakTimeHours: 1.0,
-              basicSalaryPercent: 50.0,
-              hraPercent: 20.0,
-              standardAllowancePercent: 10.0,
-              performanceBonusPercent: 10.0,
-              leaveTravelAllowancePercent: 5.0,
-              fixedAllowancePercent: 5.0,
-              employeePfPercent: 12.0,
-              employerPfPercent: 12.0,
-              professionalTax: 200.0,
-            },
-          },
-          leaveAllocations: {
-            create: [
-              { leaveType: LeaveType.PAID_TIME_OFF, totalAllocated: 24, used: 0 },
-              { leaveType: LeaveType.SICK_LEAVE, totalAllocated: 7, used: 0 },
-              { leaveType: LeaveType.UNPAID_LEAVE, totalAllocated: 0, used: 0 },
-            ],
+    // Create User + 1:1 records + default Leave Allocations
+    const newEmployee = await prisma.user.create({
+      data: {
+        loginId,
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        phone: phone.trim(),
+        password: hashedPassword,
+        mustChangePassword: true,
+        role: role as Role,
+        company: company || "Dayflow Technologies",
+        department: department.trim(),
+        location: location || "Headquarters",
+        dateOfJoining: joiningDate,
+        isActive: true,
+        privateInfo: {
+          create: {
+            nationality: "Indian",
           },
         },
-        select: {
-          id: true,
-          loginId: true,
-          name: true,
-          email: true,
-          role: true,
-          department: true,
+        resume: {
+          create: {
+            skills: [],
+            certifications: [],
+          },
         },
-      });
-
-      return user;
+        salaryInfo: {
+          create: {
+            wageType: WageType.FIXED,
+            monthlyWage,
+            yearlyWage,
+            workingDaysPerWeek: 5,
+            breakTimeHours: 1.0,
+            basicSalaryPercent: 50.0,
+            hraPercent: 20.0,
+            standardAllowancePercent: 10.0,
+            performanceBonusPercent: 10.0,
+            leaveTravelAllowancePercent: 5.0,
+            fixedAllowancePercent: 5.0,
+            employeePfPercent: 12.0,
+            employerPfPercent: 12.0,
+            professionalTax: 200.0,
+          },
+        },
+        leaveAllocations: {
+          create: [
+            { leaveType: LeaveType.PAID_TIME_OFF, totalAllocated: 24, used: 0 },
+            { leaveType: LeaveType.SICK_LEAVE, totalAllocated: 7, used: 0 },
+            { leaveType: LeaveType.UNPAID_LEAVE, totalAllocated: 0, used: 0 },
+          ],
+        },
+      },
+      select: {
+        id: true,
+        loginId: true,
+        name: true,
+        email: true,
+        role: true,
+        department: true,
+      },
     });
 
     return NextResponse.json({
@@ -232,10 +228,10 @@ export async function POST(request: Request) {
         temporaryPassword: plainPassword, // Return plain temp password ONCE for admin display
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("POST /api/employees error:", error);
     return NextResponse.json(
-      { error: "Failed to create employee. Please try again." },
+      { error: error?.message || "Failed to create employee. Please try again." },
       { status: 500 }
     );
   }

@@ -49,73 +49,68 @@ export async function PUT(
       );
     }
 
-    // Execute in a transaction
-    const updated = await prisma.$transaction(async (tx) => {
-      // 1. Update the leave request status and reviewer
-      const updatedReq = await tx.leaveRequest.update({
-        where: { id },
+    // 1. Update the leave request status and reviewer
+    const updated = await prisma.leaveRequest.update({
+      where: { id },
+      data: {
+        status: status as LeaveStatus,
+        reviewedById: session.id,
+        reviewComment: reviewComment || null,
+      },
+    });
+
+    // 2. If approved, increment LeaveAllocation.used and generate LEAVE attendance records for dates
+    if (status === "APPROVED") {
+      await prisma.leaveAllocation.updateMany({
+        where: {
+          employeeId: leaveRequest.employeeId,
+          leaveType: leaveRequest.leaveType,
+        },
         data: {
-          status: status as LeaveStatus,
-          reviewedById: session.id,
-          reviewComment: reviewComment || null,
+          used: {
+            increment: leaveRequest.allocationDays,
+          },
         },
       });
 
-      // 2. If approved, increment LeaveAllocation.used and generate LEAVE attendance records for dates
-      if (status === "APPROVED") {
-        await tx.leaveAllocation.updateMany({
-          where: {
-            employeeId: leaveRequest.employeeId,
-            leaveType: leaveRequest.leaveType,
-          },
-          data: {
-            used: {
-              increment: leaveRequest.allocationDays,
-            },
-          },
-        });
+      // Generate attendance records for weekdays in the date range
+      const curDate = new Date(leaveRequest.startDate);
+      const endDate = new Date(leaveRequest.endDate);
 
-        // Generate attendance records for weekdays in the date range
-        const curDate = new Date(leaveRequest.startDate);
-        const endDate = new Date(leaveRequest.endDate);
+      while (curDate <= endDate) {
+        const dayOfWeek = curDate.getDay();
+        // Exclude weekends (Sunday=0, Saturday=6)
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          const dateOnly = new Date(
+            curDate.getFullYear(),
+            curDate.getMonth(),
+            curDate.getDate()
+          );
 
-        while (curDate <= endDate) {
-          const dayOfWeek = curDate.getDay();
-          // Exclude weekends (Sunday=0, Saturday=6)
-          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-            const dateOnly = new Date(
-              curDate.getFullYear(),
-              curDate.getMonth(),
-              curDate.getDate()
-            );
-
-            await tx.attendance.upsert({
-              where: {
-                employeeId_date: {
-                  employeeId: leaveRequest.employeeId,
-                  date: dateOnly,
-                },
-              },
-              create: {
+          await prisma.attendance.upsert({
+            where: {
+              employeeId_date: {
                 employeeId: leaveRequest.employeeId,
                 date: dateOnly,
-                status: AttendanceStatus.LEAVE,
-                workHours: 0,
-                extraHours: 0,
               },
-              update: {
-                status: AttendanceStatus.LEAVE,
-                workHours: 0,
-                extraHours: 0,
-              },
-            });
-          }
-          curDate.setDate(curDate.getDate() + 1);
+            },
+            create: {
+              employeeId: leaveRequest.employeeId,
+              date: dateOnly,
+              status: AttendanceStatus.LEAVE,
+              workHours: 0,
+              extraHours: 0,
+            },
+            update: {
+              status: AttendanceStatus.LEAVE,
+              workHours: 0,
+              extraHours: 0,
+            },
+          });
         }
+        curDate.setDate(curDate.getDate() + 1);
       }
-
-      return updatedReq;
-    });
+    }
 
     return NextResponse.json({
       success: true,
