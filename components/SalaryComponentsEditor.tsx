@@ -101,6 +101,27 @@ export function SalaryComponentsEditor({
   const handlePrevMonth = () => setSelectedMonthDate(subMonths(selectedMonthDate, 1));
   const handleNextMonth = () => setSelectedMonthDate(addMonths(selectedMonthDate, 1));
 
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        wageType: initialData.wageType || "FIXED",
+        monthlyWage: initialData.monthlyWage ?? 100000,
+        yearlyWage: initialData.yearlyWage ?? (initialData.monthlyWage ? initialData.monthlyWage * 12 : 1200000),
+        workingDaysPerWeek: initialData.workingDaysPerWeek ?? 5,
+        breakTimeHours: initialData.breakTimeHours ?? 1.0,
+        basicSalaryPercent: initialData.basicSalaryPercent ?? 50.0,
+        hraPercent: initialData.hraPercent ?? 20.0,
+        standardAllowancePercent: initialData.standardAllowancePercent ?? 10.0,
+        performanceBonusPercent: initialData.performanceBonusPercent ?? 10.0,
+        leaveTravelAllowancePercent: initialData.leaveTravelAllowancePercent ?? 5.0,
+        fixedAllowancePercent: initialData.fixedAllowancePercent ?? 5.0,
+        employeePfPercent: initialData.employeePfPercent ?? 12.0,
+        employerPfPercent: initialData.employerPfPercent ?? 12.0,
+        professionalTax: initialData.professionalTax ?? 200.0,
+      });
+    }
+  }, [initialData]);
+
   // Live breakdown calculation
   const breakdown = useMemo(() => {
     return calculateSalaryBreakdown(formData);
@@ -161,6 +182,21 @@ export function SalaryComponentsEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+      {/* Read Only Notice for Employee */}
+      {readOnly && (
+        <div className="p-3.5 bg-primary/5 border border-primary/20 rounded-xl text-xs text-text-primary flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 text-primary flex-shrink-0" />
+            <span>
+              <strong>Personal Compensation Ledger:</strong> This is your official employment salary structure, monthly breakdown, and take-home pay estimate.
+            </span>
+          </div>
+          <span className="self-start sm:self-auto text-[10px] font-bold uppercase tracking-wider text-text-secondary bg-surface px-2.5 py-0.5 rounded-md border border-border">
+            Verified Record
+          </span>
+        </div>
+      )}
+
       {/* Alerts */}
       {error && (
         <div className="p-3 bg-error-light border border-[#FECACA] rounded-lg text-xs text-error flex items-center gap-2">

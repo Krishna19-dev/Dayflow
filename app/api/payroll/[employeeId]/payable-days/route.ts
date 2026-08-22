@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth";
 import { calculatePayableDays } from "@/lib/calculatePayableDays";
 import { prisma } from "@/lib/prisma";
 
@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: { employeeId: string } }
 ) {
   try {
-    const { session, error } = await requireAdmin();
+    const { session, error } = await requireAuth();
     if (error) return error;
 
     const { employeeId } = params;
@@ -16,6 +16,16 @@ export async function GET(
       return NextResponse.json(
         { error: "Employee ID is required" },
         { status: 400 }
+      );
+    }
+
+    const isSelf = session.id === employeeId;
+    const isAdmin = session.role === "ADMIN";
+
+    if (!isAdmin && !isSelf) {
+      return NextResponse.json(
+        { error: "Forbidden. Access to payable days record is restricted." },
+        { status: 403 }
       );
     }
 

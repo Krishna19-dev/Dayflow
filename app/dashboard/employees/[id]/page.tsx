@@ -552,8 +552,8 @@ export default function EmployeeProfilePage() {
           <span>Private Information</span>
         </button>
 
-        {/* Salary Tab: ADMIN ONLY per strict requirements */}
-        {isAdmin && (
+        {/* Salary Tab: ADMIN or OWN PROFILE (Employee read-only, Admin editable) */}
+        {(isAdmin || isSelf) && (
           <button
             onClick={() => setActiveTab("salary")}
             className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-colors ${
@@ -564,9 +564,11 @@ export default function EmployeeProfilePage() {
           >
             <DollarSign className="w-4 h-4" />
             <span>Salary Information</span>
-            <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.2 rounded font-mono">
-              ADMIN
-            </span>
+            {isAdmin && (
+              <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.2 rounded font-mono">
+                ADMIN
+              </span>
+            )}
           </button>
         )}
 
@@ -1132,14 +1134,14 @@ export default function EmployeeProfilePage() {
       )}
 
       {/* ========================================================
-          TAB 3: SALARY INFORMATION (ADMIN ONLY)
+          TAB 3: SALARY INFORMATION (ADMIN EDITABLE, EMPLOYEE READ-ONLY)
          ======================================================== */}
-      {activeTab === "salary" && isAdmin && (
+      {activeTab === "salary" && (isAdmin || isSelf) && (
         <SalaryComponentsEditor
           employeeId={id}
           initialData={employee.salaryInfo}
           onSaved={fetchProfile}
-          readOnly={false}
+          readOnly={!isAdmin}
         />
       )}
 

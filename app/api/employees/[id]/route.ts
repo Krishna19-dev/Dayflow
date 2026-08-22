@@ -30,7 +30,7 @@ export async function GET(
       include: {
         privateInfo: true,
         resume: true,
-        salaryInfo: isAdmin, // Strict rule: SalaryInfo is visible/queried ONLY to ADMIN
+        salaryInfo: isAdmin || isSelf, // Visible to ADMIN or employee viewing own profile
         manager: {
           select: { id: true, name: true, email: true, department: true },
         },
@@ -49,7 +49,7 @@ export async function GET(
     const { password, ...safeEmployee } = employee;
 
     let salaryWithCalculations = null;
-    if (isAdmin && safeEmployee.salaryInfo) {
+    if ((isAdmin || isSelf) && safeEmployee.salaryInfo) {
       const breakdown = calculateSalaryBreakdown(safeEmployee.salaryInfo);
       salaryWithCalculations = {
         ...safeEmployee.salaryInfo,

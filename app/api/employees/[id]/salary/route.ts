@@ -27,10 +27,19 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { session, error } = await requireAdmin();
+    const { session, error } = await requireAuth();
     if (error) return error;
 
     const { id } = params;
+    const isSelf = session.id === id;
+    const isAdmin = session.role === "ADMIN";
+
+    if (!isAdmin && !isSelf) {
+      return NextResponse.json(
+        { error: "Forbidden. Access to salary information is restricted." },
+        { status: 403 }
+      );
+    }
 
     const salaryInfo = await prisma.salaryInfo.findUnique({
       where: { userId: id },
