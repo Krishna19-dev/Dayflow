@@ -15,12 +15,16 @@ import {
   FileText,
   Calendar,
   AlertCircle,
+  AlertTriangle,
   Loader2,
   RefreshCw,
   Layers,
   HeartPulse,
   Sun,
   ShieldAlert,
+  X,
+  MessageSquare,
+  User,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -33,6 +37,19 @@ export default function TimeOffPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Review Confirmation Dialog State (Admin Center Window)
+  const [reviewModal, setReviewModal] = useState<{
+    isOpen: boolean;
+    leaveRequest: any | null;
+    action: "APPROVED" | "REJECTED" | null;
+    comment: string;
+  }>({
+    isOpen: false,
+    leaveRequest: null,
+    action: null,
+    comment: "",
+  });
 
   // Common State
   const [allocations, setAllocations] = useState<any[]>([]);
@@ -108,18 +125,37 @@ export default function TimeOffPage() {
     }
   }, [isAdmin, fetchEmployeeData, fetchAdminData]);
 
-  // Admin Review (Approve / Reject) Action
-  const handleReviewLeave = async (
-    leaveId: string,
-    status: "APPROVED" | "REJECTED"
+  // Admin Review Modal Handlers
+  const handleOpenReviewModal = (
+    leaveRequest: any,
+    action: "APPROVED" | "REJECTED"
   ) => {
+    setReviewModal({
+      isOpen: true,
+      leaveRequest,
+      action,
+      comment: "",
+    });
+  };
+
+  const handleCloseReviewModal = () => {
+    setReviewModal({
+      isOpen: false,
+      leaveRequest: null,
+      action: null,
+      comment: "",
+    });
+  };
+
+  const handleConfirmReviewLeave = async () => {
+    if (!reviewModal.leaveRequest || !reviewModal.action) return;
+    const leaveId = reviewModal.leaveRequest.id;
+    const status = reviewModal.action;
+    const comment = reviewModal.comment.trim();
+
     setReviewActionLoading(leaveId);
     setError(null);
     try {
-      const comment = prompt(
-        `Enter review comment for ${status.toLowerCase()} (optional):`
-      );
-
       const res = await fetch(`/api/leaves/${leaveId}/review`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -136,6 +172,7 @@ export default function TimeOffPage() {
 
       setSuccessMsg(`Leave request successfully ${status.toLowerCase()}!`);
       setTimeout(() => setSuccessMsg(null), 3000);
+      handleCloseReviewModal();
       fetchAdminData();
       fetchEmployeeData();
     } catch (err: any) {
@@ -436,7 +473,7 @@ export default function TimeOffPage() {
                                   <div className="flex items-center justify-end gap-1.5">
                                     <button
                                       onClick={() =>
-                                        handleReviewLeave(req.id, "APPROVED")
+                                        handleOpenReviewModal(req, "APPROVED")
                                       }
                                       disabled={reviewActionLoading === req.id}
                                       className="px-2.5 py-1 bg-[#16A34A] text-white text-[11px] font-semibold rounded hover:bg-[#15803D] transition-colors disabled:opacity-50"
@@ -445,7 +482,7 @@ export default function TimeOffPage() {
                                     </button>
                                     <button
                                       onClick={() =>
-                                        handleReviewLeave(req.id, "REJECTED")
+                                        handleOpenReviewModal(req, "REJECTED")
                                       }
                                       disabled={reviewActionLoading === req.id}
                                       className="px-2.5 py-1 bg-error text-white text-[11px] font-semibold rounded hover:bg-red-700 transition-colors disabled:opacity-50"
@@ -570,7 +607,7 @@ export default function TimeOffPage() {
         </div>
       )}
 
-      {/* Leave Request Modal */}
+      {/* Leave Request Submission Modal */}
       <LeaveRequestModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -582,6 +619,178 @@ export default function TimeOffPage() {
         }}
         allocations={allocations}
       />
+
+      {/* Admin Review Confirmation Dialog (Center Window Modal) */}
+      {reviewModal.isOpen && reviewModal.leaveRequest && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div
+            className="bg-surface border border-border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                    reviewModal.action === "APPROVED"
+                      ? "bg-[#DCFCE7] text-[#166534]"
+                      : "bg-error-light text-error"
+                  }`}
+                >
+                  {reviewModal.action === "APPROVED" ? (
+                    <CheckCircle2 className="w-5 h-5" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-text-primary">
+                    {reviewModal.action === "APPROVED"
+                      ? "Approve Time Off Request"
+                      : "Reject Time Off Request"}
+                  </h3>
+                  <p className="text-[11px] text-text-secondary">
+                    Review and confirm decision for this employee submission.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseReviewModal}
+                disabled={Boolean(reviewActionLoading)}
+                className="p-1 rounded-lg text-text-secondary hover:text-text-primary hover:bg-background transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Request Summary Box */}
+            <div className="bg-background/80 border border-border rounded-xl p-3.5 space-y-2 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-text-secondary font-medium">Employee:</span>
+                <span className="font-bold text-text-primary">
+                  {reviewModal.leaveRequest.employee?.name} (
+                  <span className="font-mono text-primary">
+                    {reviewModal.leaveRequest.employee?.loginId}
+                  </span>
+                  )
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-text-secondary font-medium">Leave Type:</span>
+                <span className="font-semibold text-text-primary">
+                  {getLeaveTypeLabel(reviewModal.leaveRequest.leaveType)}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-text-secondary font-medium">Requested Dates:</span>
+                <span className="font-mono font-medium text-text-primary">
+                  {format(
+                    new Date(reviewModal.leaveRequest.startDate),
+                    "dd MMM yyyy"
+                  )}
+                  {reviewModal.leaveRequest.startDate !==
+                    reviewModal.leaveRequest.endDate &&
+                    ` → ${format(
+                      new Date(reviewModal.leaveRequest.endDate),
+                      "dd MMM yyyy"
+                    )}`}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center border-t border-border pt-1.5">
+                <span className="text-text-secondary font-medium">Duration:</span>
+                <span className="font-bold text-primary font-mono">
+                  {reviewModal.leaveRequest.allocationDays}{" "}
+                  {reviewModal.leaveRequest.allocationDays === 1 ? "day" : "days"}
+                </span>
+              </div>
+            </div>
+
+            {/* Warning / Informational Alert Box */}
+            {reviewModal.action === "APPROVED" ? (
+              <div className="p-3 bg-[#DCFCE7]/70 border border-[#BBF7D0] rounded-xl text-xs text-[#166534] flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong>Approval Impact:</strong> This will deduct{" "}
+                  <strong>{reviewModal.leaveRequest.allocationDays} day(s)</strong>{" "}
+                  from the employee&apos;s balance and automatically log{" "}
+                  <span className="font-mono font-bold">LEAVE</span> in their attendance ledger.
+                </span>
+              </div>
+            ) : (
+              <div className="p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl text-xs text-error flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong>Rejection Warning:</strong> The request will be marked as rejected. No leave days will be deducted from the employee&apos;s quota.
+                </span>
+              </div>
+            )}
+
+            {/* Decision Comments Input */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-text-primary flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-text-secondary" />
+                <span>Reviewer Note / Decision Comment (Optional)</span>
+              </label>
+              <textarea
+                rows={2}
+                value={reviewModal.comment}
+                onChange={(e) =>
+                  setReviewModal((prev) => ({
+                    ...prev,
+                    comment: e.target.value,
+                  }))
+                }
+                placeholder={
+                  reviewModal.action === "APPROVED"
+                    ? "e.g. Approved. Please coordinate handover before leaving."
+                    : "e.g. Due to urgent project deadlines during these dates..."
+                }
+                className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+              />
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
+              <button
+                type="button"
+                onClick={handleCloseReviewModal}
+                disabled={Boolean(reviewActionLoading)}
+                className="px-4 py-2 text-xs font-semibold text-text-secondary hover:text-text-primary bg-background border border-border rounded-xl hover:bg-background/80 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmReviewLeave}
+                disabled={Boolean(reviewActionLoading)}
+                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white rounded-xl shadow-sm transition-all disabled:opacity-50 ${
+                  reviewModal.action === "APPROVED"
+                    ? "bg-[#16A34A] hover:bg-[#15803D]"
+                    : "bg-error hover:bg-red-700"
+                }`}
+              >
+                {reviewActionLoading ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Processing...
+                  </>
+                ) : reviewModal.action === "APPROVED" ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Confirm Approval
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-3.5 h-3.5" /> Confirm Rejection
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
