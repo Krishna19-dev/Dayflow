@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
 
 export interface CurrentUser {
   id: string;
@@ -43,8 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [todayAttendance, setTodayAttendance] = useState<TodayAttendance | null>(null);
-  const router = useRouter();
-  const pathname = usePathname();
 
   const refreshUser = useCallback(async () => {
     try {
@@ -123,12 +120,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      setUser(null);
-      setTodayAttendance(null);
-      router.push("/login");
     } catch (e) {
       console.error("Logout error:", e);
-      router.push("/login");
+    } finally {
+      setUser(null);
+      setTodayAttendance(null);
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
   };
 
