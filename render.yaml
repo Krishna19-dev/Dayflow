@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: dayflow-hrms
+    runtime: node
+    region: oregon  # ya singapore agar India ke kareeb chahiye
+    plan: free      # free tier; upgrade karo agar jarurat ho
+
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+
+    # Node version — .node-version file se match karna chahiye
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+
+      - key: NODE_ENV
+        value: production
+
+      # Yeh keys Render Dashboard > Environment mein manually set karo
+      - key: DATABASE_URL
+        sync: false
+
+      - key: DIRECT_URL
+        sync: false
+
+      - key: JWT_SECRET
+        sync: false
+
+      - key: COMPANY_CODE
+        sync: false
