@@ -91,10 +91,20 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login API error:", error);
+    
+    // Check for common production configuration issues
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json(
+        { error: "Configuration Error: DATABASE_URL is missing in Vercel Environment Variables." },
+        { status: 500 }
+      );
+    }
+
+    const msg = error?.message || "An unexpected error occurred during login.";
     return NextResponse.json(
-      { error: "An unexpected error occurred during login." },
+      { error: `Login failed: ${msg.includes("DATABASE_URL") ? "Missing or invalid DATABASE_URL in Vercel" : msg.substring(0, 120)}` },
       { status: 500 }
     );
   }
