@@ -62,12 +62,18 @@ Visit **[http://localhost:3000](http://localhost:3000)** 🎉
 
 ## 🔑 Demo Accounts (Pre-Seeded)
 
-| Role | Name | Login ID | Email | Password |
-| :--- | :--- | :--- | :--- | :--- |
-| **👑 ADMIN** | Krishna | `OIADMI20260001` | `admin@dayflow.com` | `Admin@12345` |
-| **👤 EMPLOYEE** | Aarav Sharma | `OIAASH20260002` | `aarav.sharma@dayflow.com` | `Employee@123` |
-| **👤 EMPLOYEE** | Rohan Gupta | `OIROGU20260003` | `rohan.gupta@dayflow.com` | `Employee@123` |
-| **👤 EMPLOYEE** | Priya Sharma | `OIPRSH20260004` | `priya.sharma@dayflow.com` | `Employee@123` |
+| Department | Role | Name | Login ID | Email | Password |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Human Resources** | **👑 ADMIN** | Krishna | `OIADMI20260001` | `admin@dayflow.com` | `Admin@12345` |
+| **Engineering** | **👤 EMPLOYEE** | Aarav Sharma (2-Day Leave Case) | `OIAASH20260002` | `aarav.sharma@dayflow.com` | `Employee@123` |
+| **Engineering** | **👤 EMPLOYEE** | Vikram Malhotra (Overtime Star) | `OIVIMA20260005` | `vikram.malhotra@dayflow.com` | `Employee@123` |
+| **Product Design** | **👤 EMPLOYEE** | Rohan Gupta (Sick + Half Day Case) | `OIROGU20260003` | `rohan.gupta@dayflow.com` | `Employee@123` |
+| **Marketing** | **👤 EMPLOYEE** | Priya Sharma (Vacation Case) | `OIPRSH20260004` | `priya.sharma@dayflow.com` | `Employee@123` |
+| **Sales** | **👤 EMPLOYEE** | Siddharth Rao (Sales Director) | `OISIRA20260026` | `siddharth.rao@dayflow.com` | `Employee@123` |
+| **Operations** | **👤 EMPLOYEE** | Alok Mishra (Head of Ops) | `OIALMI20260032` | `alok.mishra@dayflow.com` | `Employee@123` |
+| **Finance** | **👤 EMPLOYEE** | Sanjay Singhal (CFO - 100% Present) | `OISASI20260038` | `sanjay.singhal@dayflow.com` | `Employee@123` |
+
+> 💡 **Total Staff**: 43 employees across 7 departments with 1-month realistic attendance & leave profiles!
 
 ---
 

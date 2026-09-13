@@ -51,6 +51,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(data.user);
       } else {
         setUser(null);
+        if (typeof window !== "undefined") {
+          const path = window.location.pathname;
+          if (!path.startsWith("/login") && !path.startsWith("/change-password")) {
+            window.location.href = "/login";
+          }
+        }
       }
     } catch {
       setUser(null);

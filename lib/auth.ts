@@ -56,6 +56,22 @@ export async function requireAuth(): Promise<{ session: TokenPayload; error?: ne
       ),
     };
   }
+
+  // Verify that the user still exists in database (guards against stale session cookies)
+  const user = await prisma.user.findUnique({
+    where: { id: session.id },
+    select: { id: true, isActive: true },
+  });
+
+  if (!user || !user.isActive) {
+    const errorRes = NextResponse.json(
+      { error: "Session invalid or user not found. Please log in." },
+      { status: 401 }
+    );
+    errorRes.cookies.set(COOKIE_NAME, "", { maxAge: 0, path: "/" });
+    return { error: errorRes };
+  }
+
   return { session };
 }
 

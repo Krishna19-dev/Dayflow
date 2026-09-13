@@ -12,7 +12,9 @@ export async function GET() {
 
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ user: null }, { status: 404 });
+      const res = NextResponse.json({ user: null, error: "User not found" }, { status: 401 });
+      res.cookies.set("dayflow_token", "", { maxAge: 0, path: "/" });
+      return res;
     }
 
     return NextResponse.json({ user });
