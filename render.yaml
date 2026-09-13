@@ -11,7 +11,7 @@ services:
     # Node version — .node-version file se match karna chahiye
     envVars:
       - key: NODE_VERSION
-        value: 20.18.0
+        value: 24.13.1
 
       - key: NODE_ENV
         value: production
